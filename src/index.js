@@ -16,15 +16,6 @@ const client = new ApolloClient({
   },
 });
 
-const GET_ORGANIZATION = gql`
-  query($organization: String!) {
-    organization(login: $organization) {
-      name
-      url
-    }
-  }
-`;
-
 const GET_REPOSITORIES_OF_ORGANIZATION = gql`
   query($organization: String!, $cursor: String) {
     organization(login: $organization) {
@@ -53,43 +44,23 @@ const GET_REPOSITORIES_OF_ORGANIZATION = gql`
   }
 `;
 
-client
-  .query({
-    query: GET_REPOSITORIES_OF_ORGANIZATION,
-    variables: {
-      organization: 'the-road-to-learn-react',
-      cursor: undefined,
-    },
-  })
-  .then(result => {
-    const { pageInfo, edges } = result.data.organization.repositories;
-    const { endCursor, hasNextPage } = pageInfo;
-
-    console.log('second page', edges.length);
-    console.log('endCursor', endCursor);
-
-    return pageInfo;
-  })
-  .then(({ endCursor, hasNextPage }) => {
-    if (!hasNextPage) {
-      throw Error('no next page')
-    }
-
-    return client.query({
-      query: GET_REPOSITORIES_OF_ORGANIZATION,
-      variables: {
-        organization: 'the-road-to-learn-react',
-        cursor: endCursor
+const ADD_STAR = gql`
+  mutation AddStar($repositoryId: ID!) {
+    addStar(input: { starrableId: $repositoryId }) {
+      starrable {
+        id
+        viewerHasStarred
       }
-    })
-  })
-  .then(result => {
-    const { pageInfo, edges } = result.data.organization.repositories;
-    const { endCursor, hasNextPage } = pageInfo;
+    }
+  }
+`;
 
-    console.log('second page', edges.length);
-    console.log('endCursor', endCursor);
-
-    return pageInfo;
+client
+  .mutate({
+    mutation: ADD_STAR,
+    variables: {
+      repositoryId: 'MDEwOlJlcG9zaXRvcnkxNDI0MjA1NTU='
+    }
   })
-  .catch(console.log);
+  .then(console.log)
+

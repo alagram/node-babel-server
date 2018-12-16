@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import 'cross-fetch/polyfill';
 import ApolloClient, { gql } from 'apollo-boost';
-import { url } from 'inspector';
 
 const client = new ApolloClient({
   uri: 'https://api.github.com/graphql',
